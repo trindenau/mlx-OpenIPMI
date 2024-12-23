@@ -662,6 +662,45 @@ else
 fi
 
 ###################################
+#       Get SOC power info        #
+###################################
+SOC_POWER_PATH="/sys/kernel/debug/mlxbf-ptm/monitors/status/total_power"
+if [ ! -f "$SOC_POWER_PATH"  ]; then
+	modprobe mlxbf-ptm
+fi
+
+if [ ! -f "$SOC_POWER_PATH" ]; then
+    echo "Error: soc_power file still not found after loading module"
+    remove_sensor "soc_power"
+else
+	soc_power=$(cat "$SOC_POWER_PATH")
+	if ! [[ "$soc_power" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+        echo "Error: soc_power is not a valid number"
+        remove_sensor "soc_power"
+	else
+		echo "$soc_power" > "${EMU_PARAM_DIR}/soc_power"
+	fi
+fi
+
+###################################
+#     Get power envelope info     #
+###################################
+POWER_ENVELOPE_PATH="/sys/kernel/debug/mlxbf-ptm/monitors/status/power_envelope"
+if [ ! -f "$POWER_ENVELOPE_PATH" ]; then
+    echo "Error: power_envelope file still not found after loading module"
+    remove_sensor "power_envelope"
+else
+	power_envelope=$(cat "$POWER_ENVELOPE_PATH")
+	if ! [[ "$power_envelope" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+        echo "Error: power_envelope is not a valid number"
+        remove_sensor "power_envelope"
+	else
+		echo "$power_envelope" > "${EMU_PARAM_DIR}/power_envelope"
+	fi
+fi
+
+
+###################################
 #          Get FW info            #
 ###################################
 #
