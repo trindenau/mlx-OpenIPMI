@@ -668,7 +668,14 @@ fi
 # Read discrete RTC low battery voltage value.
 # A value of 0x0 means RTC battery voltage is good.
 # A value of 0x80 means RTC battery voltage is low.
-temp=$(cat /sys/devices/platform/MLNXBF04:00/rtc_battery)
+RTC_VOLTAGE_PATH="/sys/devices/platform/MLNXBF04:00/rtc_battery"
+if [ ! -e "${RTC_VOLTAGE_PATH}" ]; then
+    RTC_VOLTAGE_PATH="/sys/bus/platform/drivers/mlxbf-bootctl/rtc_battery"
+	if [ ! -e "${RTC_VOLTAGE_PATH}" ]; then
+	    echo "Error: rtc_voltage sensor data file doesn’t exist."
+	fi
+fi
+temp=$(cat "$RTC_VOLTAGE_PATH")
 
 # Currently, there is no Redfish schema which supports discrete sensors.
 # Hence, we map the values to the corresponding voltages which they represent.
